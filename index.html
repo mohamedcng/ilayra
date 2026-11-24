@@ -187,8 +187,9 @@ const pick=pickM+pickC+pickG+pickCol;
 const im=IMG[p.id+"|"+cm]||p.img||IMG[p.id];
 const act=pr==null?`<a class="btn" style="display:block;text-align:center" target="_blank" rel="noopener" href="${wa("Hello ILAYRA, what is the price of "+dn(p,v)+"?")}">${t("Ask on WhatsApp","Weydii WhatsApp")}</a>`:`<button class="btn" onclick="add('${p.id}')">${t("Add to cart","Ku dar gaadhiga")}</button>`;
 return `<article class="product"><div class="product-art">${im?`<img src="${im}" alt="${p.name}">`:p.category==="SMARTPHONES"?phoneSvg(p,cm):p.art}</div><div class="product-body"><div class="tag">${(CATS.find(c=>c[0]===p.category)||[])[somali?2:1]||p.category}<span class="badge ${cd}">${LBL[cd][somali?1:0]}</span></div><h3>${p.name}${cm&&cm!=="Standard"?" "+cm:""}${p.esim&&p.esim[cm]&&cd==="new"?" eSIM":""}</h3>${p.desc?`<ul class="muted" style="margin:6px 0;padding-left:18px;text-align:left;font-size:12px;line-height:1.5">${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>`:""}${pick}<div class="price">${pr==null?t("Ask for price","Weydii qiimaha"):money(pr)}</div><div class="muted">${p.s?"Sample price, edit before launch":""}</div>${act}</div></article>`}).join(""):`<p class="hint">${t("No products in this selection yet.","Alaab ma jirto doorashadan weli.")}</p>`}
-function add(id){const p0=P.find(x=>x.id===id),k=id+"|"+kOf(p0)+"|"+colOf(p0);cart[k]=(cart[k]||0)+1;draw()}
-function chg(k,d){cart[k]=(cart[k]||0)+d;if(cart[k]<=0)delete cart[k];draw()}
+let sent=false;
+function add(id){if(sent){cart={};sent=false}$("res").innerHTML="";const p0=P.find(x=>x.id===id),k=id+"|"+kOf(p0)+"|"+colOf(p0);cart[k]=(cart[k]||0)+1;draw()}
+function chg(k,d){sent=false;$("res").innerHTML="";cart[k]=(cart[k]||0)+d;if(cart[k]<=0)delete cart[k];draw()}
 function items(){return Object.keys(cart).map(k=>{const [id,j,col]=k.split("|"),p=P.find(x=>x.id===id),v=p.v[+j];return{key:k,p,price:v[1],name:dn(p,v)+(col?" "+col:""),cd:v[3]||p.cond,q:cart[k]}})}
 function sum(){return items().reduce((a,i)=>a+i.price*i.q,0)}
 function draw(){const it=items();$("count").textContent=it.reduce((a,i)=>a+i.q,0);
@@ -201,14 +202,14 @@ el.innerHTML=`<div class="hint">${t("Dial this code on your phone to pay:","Wac 
 $("pay").onchange=payCode;
 document.querySelectorAll('input[name="dm"]').forEach(r=>r.onchange=draw);
 function open_(){draw();$("panel").classList.add("open")}
-$("cartBtn").onclick=open_;$("close").onclick=()=>$("panel").classList.remove("open");
-$("panel").addEventListener("click",e=>{if(e.target.id==="panel")$("panel").classList.remove("open")});
+$("cartBtn").onclick=open_;function closeP(){$("panel").classList.remove("open");if(sent){cart={};sent=false;$("res").innerHTML="";draw()}}$("close").onclick=closeP;
+$("panel").addEventListener("click",e=>{if(e.target.id==="panel")closeP()});
 $("send").onclick=()=>{const v=k=>$(k).value.trim();
 const pk=pickup();if(!v("fn")||!v("ph")||(!pk&&!v("ad"))){$("err").textContent=pk?t("Enter your name and phone number.","Geli magacaaga iyo lambarkaaga."):t("Enter your name, phone number and delivery address.","Geli magacaaga, lambarkaaga iyo ciwaanka gaarsiinta.");return}
 $("err").textContent="";const id="ILAYRA-"+Date.now().toString(36).toUpperCase().slice(-6);
 const lines=items().map(i=>`- ${i.name} (${LBL[i.cd][0]}) x${i.q} = ${money(i.price*i.q)}`).join("\n");
 const msg=`ORDER ${id}\nName: ${v("fn")}\nPhone: ${v("ph")}\nEmail: ${pk&&v("fe")||"-"}\n${pk?"Delivery: Office pickup (Free)":"Delivery: Home delivery ("+money(DELIVERY_FEE)+")\nAddress: "+v("ad")}\nPayment: ${$("pay").value}\nItems:\n${lines}\nSubtotal: ${money(sum())}\nDelivery fee: ${pk?"Free":money(DELIVERY_FEE)}\nTotal: ${money(grand())}`;
-const url=wa(msg);let w=null;try{w=window.open(url,"_blank")}catch(e){}if(!w){try{window.top.location.href=url}catch(e){}}
+sent=true;const url=wa(msg);let w=null;try{w=window.open(url,"_blank")}catch(e){}if(!w){try{window.top.location.href=url}catch(e){}}
 $("res").innerHTML=`<div class="hint">${t("If WhatsApp did not open, tap the button below.","Haddii WhatsApp aanu furmin, riix badhanka hoose.")}</div><a class="btn" style="display:block;text-align:center" href="${url}" target="_blank" rel="noopener">${t("Open WhatsApp","Fur WhatsApp")}</a><button class="btn outline" id="cp">${t("Copy order","Koobi dalabka")}</button>`;
 $("cp").onclick=()=>{const done=()=>{$("cp").textContent=t("Copied. Send it to +252619885789","La koobiyay. U dir +252619885789")};if(navigator.clipboard)navigator.clipboard.writeText(msg).then(done).catch(()=>window.prompt("Copy:",msg));else window.prompt("Copy:",msg)}};
 const hello=wa("Hello ILAYRA, I have a question.");$("askWa").href=hello;$("footWa").href=hello;

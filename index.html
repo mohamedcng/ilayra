@@ -266,7 +266,7 @@ const DELIVERY_FEE=2;
 const NEWIDS=["i18","x17u","x14u","reno16","rn15p"];
 // BUSINESS PACKAGES: [English name, Somali name, product ids]. Price = sum of each item's lowest listed price.
 const PKGS=[["Office Starter","Xirmada Xafiiska",["hp840g7","l3250","ups1000"]],["Printing Pack","Xirmada Daabacaadda",["l3210","ink664"]],["Shop Security","Amniga Dukaanka",["zku290","ups750"]],["Power & Network","Koronto & Network",["tpl","ups750"]]];
-const SITE_URL="https://claude.ai/artifact/PKo6VbD2ErEKzETS9Ami3S";
+const SITE_URL="https://ilayra.pages.dev/";
 function pkP(id){const p=P.find(x=>x.id===id);if(!p)return null;const a=p.v.map(x=>x[1]).filter(x=>x!=null);return{p,pr:a.length?Math.min(...a):null}}
 function pkMsg(k,it,ok,tot){return `Hello ILAYRA, I would like a quote for the "${k[0]}" package:
 ${it.map(x=>"- "+x.p.name+(x.pr!=null?" ("+money(x.pr)+")":"")).join("\n")}${ok?"\nTotal: "+money(tot):""}
